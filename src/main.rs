@@ -1,15 +1,41 @@
-fn main() {
-    let search_term = "picture";
-    let quote = "\
-        Every face, every shop, bedroom window, public-house, and
-        dark square is a picture feverishly turned--in search of what?
-        It is the same with books.
-        What do we seek through millions of pages?
-    ";
+use clap::{App, Arg};
+use regex::Regex;
+use std::{
+    fs::File,
+    io::{prelude::*, BufReader},
+};
 
-    for line in quote.lines() {
-        if line.contains(search_term) {
-            println!("{}", line);
+fn main() {
+    let args = App::new("grep-lite")
+        .version("0.1")
+        .about("Grep patterns, string search tool")
+        .arg(
+            Arg::with_name("needle")
+                .help("The Pattern to search for")
+                .takes_value(true)
+                .required(true),
+        )
+        .arg(
+            Arg::with_name("input")
+                .help("File to search")
+                .takes_value(true)
+                .required(true),
+        )
+        .get_matches();
+
+    let needle = args.value_of("needle").unwrap();
+    // unwrap a Result, panicing out those errors tho
+    let re = Regex::new(needle).unwrap();
+
+    let input = args.value_of("input").unwrap();
+    let f = File::open(input).unwrap();
+    let reader = BufReader::new(f);
+
+    for line_ in reader.lines() {
+        let line = line_.unwrap();
+        match re.find(&line) {
+            Some(_) => print!("{}", line),
+            None => {}
         }
     }
 }
