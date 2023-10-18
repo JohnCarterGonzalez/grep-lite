@@ -1,10 +1,6 @@
 use clap::{App, Arg};
 use regex::Regex;
-use std::{
-    fs::File,
-    intrinsics::atomic_singlethreadfence_acqrel,
-    io::{prelude::*, BufReader},
-};
+use std::{fs::File, io::*};
 
 fn process_lines<T: BufRead + Sized>(reader: T, re: Regex) {
     for line_ in reader.lines() {
@@ -40,7 +36,7 @@ fn main() {
 
     let input = args.value_of("input").unwrap();
     if input == "-" {
-        let stdin = io::stdin();
+        let stdin = stdin(); // io::stdin()
         let reader = stdin.lock();
         process_lines(reader, re);
     } else {
